@@ -1,21 +1,33 @@
-import { Directive, DoCheck, HostBinding, OnChanges, Input } from '@angular/core';
-import { ButtonWithSwitchComponent } from './button-with-switch.component'
+import { Directive, HostBinding, ElementRef, Renderer2 } from '@angular/core';
 
 @Directive({
   selector: '[appToggle]'
 })
-export class ToggleDirective implements DoCheck, OnChanges {
+export class ToggleDirective {
 
-  @Input() disabled: boolean;
+  condition:boolean = true;
 
-  constructor(private btnComponent: ButtonWithSwitchComponent) { }
+  constructor(
+    private element: ElementRef,
+    private renderer: Renderer2
+  ) {
+   var checkbox = this.renderer.createElement('input');
+  this.renderer.setAttribute(checkbox, 'type', 'checkbox');
+  this.renderer.listen(checkbox, 'click', this.onChange);
+  this.renderer.appendChild(element.nativeElement, checkbox);
+  }
 
-  ngDoCheck() {
-    console.log('ngDoCheck directive disabled :', this.disabled);
+  @HostBinding('disabled')
+  lockAction() {
+   this.condition? 'disabled': null;
+  }
+
+  @HostBinding('class.mat-button-disabled') 
+  get lock() {
+    return this.condition; }
+
+  onChange = () => {
+    this.condition = !this.condition;
   }
   
-  ngOnChanges() {
-    console.log('ngOnChanges directive disabled', this.disabled);
-  }
- 
 }
